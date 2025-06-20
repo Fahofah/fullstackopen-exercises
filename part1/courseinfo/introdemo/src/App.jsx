@@ -14,18 +14,22 @@ const Part = (props) => {
 
 const Content = (props) => {
 
+  const names = props.parts.map(part => part.name);
+  const exercises = props.parts.map(part => part.exercises);  
+
+
   return (
     <div>
-      <Part part={props.names[0]} exercise={props.exercises[0]} />
-      <Part part={props.names[1]} exercise={props.exercises[1]} />
-      <Part part={props.names[2]} exercise={props.exercises[2]} />
+      <Part part={names[0]} exercise={exercises[0]} />
+      <Part part={names[1]} exercise={exercises[1]} />
+      <Part part={names[2]} exercise={exercises[2]} />
     </div>
   )
 }
 
 const Total = (props) => {
   let total = 0;
-  props.exercises.forEach(exercise => { total += exercise });
+  props.parts.forEach(part => { total += part.exercises });
 
   return (
       <p>Number of exercises {total}</p>
@@ -49,14 +53,11 @@ const App = () => {
     }
   ]
 
-  const names = parts.map(part => part.name);
-  const exercises = parts.map(part => part.exercises);  
-
   return (
     <div>
       <Header course={course}/>
-      <Content names={names} exercises={exercises}/>
-      <Total exercises={exercises}/>
+      <Content parts={parts}/>
+      <Total parts={parts}/>
     </div>
   )
 }
