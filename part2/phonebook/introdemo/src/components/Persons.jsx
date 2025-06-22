@@ -1,6 +1,6 @@
 import Person from "./Person";
 
-const Persons = ({ persons, filter }) => {
+const Persons = ({ persons, filter, deletePerson }) => {
 
   const filteredPersons = persons.filter(person => person.name.toLowerCase().includes(filter.toLowerCase()));
   
@@ -8,7 +8,13 @@ const Persons = ({ persons, filter }) => {
     <div>
       <h2>Numbers</h2>
       <ul>
-        {filteredPersons.map(person => <Person key={person.id} person={person} />)}
+        {filteredPersons.map(person => 
+            <Person 
+                key={person.id} 
+                person={person} 
+                deletePerson={deletePerson} 
+            /> )
+        }
       </ul>
     </div>
   )
