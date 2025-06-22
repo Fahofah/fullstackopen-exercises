@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react'
-import axios from 'axios'
+import './index.css'
 
 import Persons from './components/Persons'
 import NewPersonForm from './components/NewPersonForm'
+import Notification from './components/Notification'
+
 import personsService from './services/persons'
 
 const App = () => {
@@ -11,8 +13,7 @@ const App = () => {
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
   const [newFilter, setNewFilter] = useState('')
-
-  
+  const [notification, setNotification] = useState({message:null, type: null})
 
   useEffect(() => {
     personsService.getAll()
@@ -33,6 +34,13 @@ const App = () => {
     setNewFilter(event.target.value)
   }
 
+  const showNotification = (message, type) => {
+    setNotification({message, type})
+    setTimeout(() => {
+        setNotification({ message: null, type: null })
+      }, 3500)
+  }
+
    const updateNumber = (name) => {
     const existingPerson = persons.find(person => person.name === name);
     const updatedNumber = { ...existingPerson, number: newNumber };
@@ -40,12 +48,12 @@ const App = () => {
     personsService.update(existingPerson.id, updatedNumber)
     .then(updatedPerson => {
       setPersons(persons.map(p => 
-        p.id !== existingPerson.id ? p : updatedPerson
-      ))
+        p.id !== existingPerson.id ? p : updatedPerson))
+      showNotification(`Updated ${name}`, 'success')
     })
     .catch(error => {
-      console.error('Error updating number:', error);
-      alert(`Failed to update ${name}. Please try again.`);
+      console.error(`Error updating number for id${existingPerson.id}:`, error);
+      showNotification(`Error updating number for ${name}: ${error.response.statusText}`, 'error')
     })
   }
 
@@ -69,10 +77,11 @@ const App = () => {
       personsService.create(newPersonObject)
       .then(addedPerson => {
         setPersons(persons.concat(addedPerson))
+        showNotification(`Added ${addedPerson.name}`, 'success')
       })
       .catch(error => {
-        console.error('Error adding new person:', error);
-        alert(`Failed to add ${newName}. Please try again.`);
+        console.error(`Error adding new person:`, error);
+        showNotification(`Error adding ${newPersonObject.name}: ${error.response.statusText}`, 'error')
       });
     }
 
@@ -91,22 +100,19 @@ const App = () => {
       .then((deletePerson) => {
         console.log(`Deleted ${deletePerson.name}`);
         setPersons(persons.filter(p => p.id !== person.id))
+        showNotification(`Deleted ${deletePerson.name}`, 'success')
       })
       .catch(error => {
-        console.error(`Error deleting ${person.name}:`, error);
-        alert(`Information of ${person.name} has already been removed from the server`);
-        setPersons(persons.filter(p => p.id !== person.id)) 
+        showNotification(`Error deleting ${person.name}: ${error.response.statusText}`, 'error') 
+        console.error(`Error deleting person with id ${person.id}:`, error);
       });
     }
   }
 
-
- 
-
-
   return (
     <div>
       <h2>Phonebook</h2>
+      <Notification notification={notification} />
       <div>
         filter shown with <input value={newFilter} onChange={handleFilterChange}/>
       </div>
